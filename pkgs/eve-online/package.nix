@@ -22,6 +22,7 @@ let
     "WINEPREFIX"
     "EVE_WINEPREFIX"
     "EVE_GRAB_POINTER"
+    "EVE_DEBUG"
     "STEAM_COMPAT_INSTALL_PATH"
     "PROTONPATH"
   ];
@@ -137,6 +138,8 @@ symlinkJoin {
     launcherIcon
     desktopItem
   ];
+
+  passthru.updateScript = ./update.sh;
 
   meta = {
     description = "EVE Online launcher using UMU and Proton";

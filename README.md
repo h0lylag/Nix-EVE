@@ -89,6 +89,8 @@ eve-online
 
 If the launcher isn't found automatically, set `EVE_LAUNCHER_EXE` to the absolute path of its executable.
 
+To see what the launcher script is doing, for example when `--install` fails, set `EVE_DEBUG=1`.
+
 ### EVE Preview Manager
 
 If you cannot click [EVE Preview Manager](https://github.com/h0lylag/EVE-Preview-Manager) previews, disable Wine's pointer grabbing:

@@ -1,8 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p curl
+# shellcheck shell=bash
 set -euo pipefail
 
-repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-package_file="$repo_root/pkgs/eve-online/package.nix"
+package_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/package.nix"
 
 installer_base_url=https://launcher.ccpgames.com/eve-online/release/win32/x64
 download_dir=${EVE_UPDATE_DOWNLOAD_DIR:-/tmp}
@@ -67,10 +68,6 @@ fi
 
 [[ $curl_retries =~ ^[0-9]+$ ]] || fail 'EVE_UPDATE_RETRIES must be a nonnegative integer.'
 [[ $curl_connect_timeout =~ ^[1-9][0-9]*$ ]] || fail 'EVE_UPDATE_CONNECT_TIMEOUT must be a positive integer.'
-
-for tool in curl nix; do
-  command -v "$tool" >/dev/null 2>&1 || fail "Missing required command: $tool"
-done
 
 curl_options=(
   --fail --location --silent --show-error

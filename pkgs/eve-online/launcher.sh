@@ -3,6 +3,10 @@
 #   default_prefix, default_grab_pointer, packaged_proton, installer,
 #   and apply_package_environment.
 
+if [[ -n "${EVE_DEBUG:-}" ]]; then
+  set -x
+fi
+
 umask 077
 # Globs below rely on unmatched patterns expanding to nothing.
 shopt -s nullglob extglob
@@ -20,6 +24,7 @@ Environment:
   PROTONPATH        Override the configured Proton installation
   EVE_LAUNCHER_EXE  Absolute path to the launcher executable
   EVE_GRAB_POINTER  Y/N to set Wine's GrabPointer; empty leaves it unchanged
+  EVE_DEBUG         Set to any value to trace the launcher script
 
   Default prefix: $default_prefix
 
