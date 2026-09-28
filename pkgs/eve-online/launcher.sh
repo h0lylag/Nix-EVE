@@ -24,7 +24,7 @@ Environment:
   PROTONPATH        Override the configured Proton installation
   EVE_LAUNCHER_EXE  Absolute path to the launcher executable
   EVE_GRAB_POINTER  Y/N to set Wine's GrabPointer; empty leaves it unchanged
-  EVE_DEBUG         Set to any value to trace the launcher script
+  EVE_DEBUG         Set to a non-empty value to trace the launcher script
 
   Default prefix: $default_prefix
 
@@ -41,10 +41,10 @@ run_wine_tool() {
 }
 
 # Prints the subtree under KEY with carriage returns removed. KEY must exist
-# in every prefix: then any failure is a real error, and a missing subkey or
-# value is simply absent from the listing. reg.exe's exit status and messages
-# cannot tell a missing key apart from other failures. Extra arguments, such
-# as /reg:32, are passed to reg.exe.
+# and contain values or subkeys in every prefix: Wine prints nothing for an
+# empty root. A missing child is then simply absent from a valid listing.
+# Validate the listing as well as the status because UMU can mask failures.
+# Extra arguments, such as /reg:32, are passed to reg.exe.
 list_registry_tree() {
   local key="$1" output
   shift
@@ -54,7 +54,14 @@ list_registry_tree() {
     printf 'Unable to read %s in %s\n' "$key" "$WINEPREFIX" >&2
     return 1
   fi
-  printf '%s\n' "${output//$'\r'/}"
+  output="${output//$'\r'/}"
+  # Wine can omit a root with no values while still printing its children.
+  if ! registry_has_key "$output" "$key"; then
+    printf 'Unable to read %s in %s: no matching registry tree in output\n' \
+      "$key" "$WINEPREFIX" >&2
+    return 1
+  fi
+  printf '%s\n' "$output"
 }
 
 # Succeeds if a registry listing contains KEY or any of its subkeys. Keys
@@ -252,6 +259,8 @@ if [[ "$WINEPREFIX" != /* ]]; then
 fi
 WINEPREFIX="$(realpath -m -- "$WINEPREFIX")"
 export WINEPREFIX
+# Otherwise UMU derives this from the executable, which puts the installer's
+# Nix store directory in its runtime library search path.
 export STEAM_COMPAT_INSTALL_PATH="$WINEPREFIX"
 
 apply_package_environment

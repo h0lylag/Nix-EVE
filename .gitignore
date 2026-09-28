@@ -1,3 +1,5 @@
 /result
 /result-*
 tests/
+.mcp.json
+.codex/config.toml

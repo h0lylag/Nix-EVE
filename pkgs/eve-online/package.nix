@@ -33,19 +33,18 @@ let
   defaultEnvironment = {
     GAMEID = "umu-default";
     STORE = "none";
+    # Reuse the prefix's running container so additional launches do not wait
+    # for wineserver to exit. This adds a polling delay when starting cold.
     UMU_CONTAINER_NSENTER = "1";
     PROTONFIXES_DISABLE = "1";
     PROTON_USE_XALIA = "0";
   };
-  # extraEnvironment values are defaults the caller's environment can
-  # override; defaultEnvironment values are always forced. Variables named in
-  # extraEnvironment are also kept rather than cleared.
+  # Package defaults are forced unless named in extraEnvironment.
+  # For those names, inherited environment values take precedence.
   environmentToClear = builtins.filter (name: !(builtins.hasAttr name extraEnvironment)) [
     "PROTON_VERB"
     "STEAM_COMPAT_LAUNCHER_SERVICE"
     "UMU_CONTAINER_NSENTER"
-    "UMU_CONTAINER_NSENTER_CREATE"
-    "UMU_CONTAINER_NSENTER_REQUIRED"
   ];
   environmentExports = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (
@@ -139,7 +138,9 @@ symlinkJoin {
     desktopItem
   ];
 
-  passthru.updateScript = ./update.sh;
+  # A checkout-relative command: nix-update runs it from the repository root.
+  # A path value would copy update.sh into the store away from package.nix.
+  passthru.updateScript = "./pkgs/eve-online/update.sh";
 
   meta = {
     description = "EVE Online launcher using UMU and Proton";
